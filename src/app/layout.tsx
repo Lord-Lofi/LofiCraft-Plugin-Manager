@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Toaster } from 'sonner';
 import { NavigationProvider } from '@/components/NavigationProvider';
+import Navbar from '@/components/Navbar';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -13,19 +14,24 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <NavigationProvider>
-          {children}
+          <div className="flex h-screen flex-col bg-[#0a0a0a] overflow-hidden">
+            <Navbar />
+            <div className="flex flex-1 flex-col overflow-hidden">
+              {children}
+            </div>
+          </div>
+          <Toaster
+            position="bottom-right"
+            theme="dark"
+            toastOptions={{
+              style: {
+                background: '#1a1a1a',
+                border: '1px solid #2a2a2a',
+                color: '#f9fafb',
+              },
+            }}
+          />
         </NavigationProvider>
-        <Toaster
-          position="bottom-right"
-          theme="dark"
-          toastOptions={{
-            style: {
-              background: '#1a1a1a',
-              border: '1px solid #2a2a2a',
-              color: '#f9fafb',
-            },
-          }}
-        />
       </body>
     </html>
   );

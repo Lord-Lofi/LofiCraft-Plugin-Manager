@@ -4,28 +4,19 @@ import { Package } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useNavigationDir } from './NavigationProvider';
 
-interface Props {
-  onNavigateAway?: (nav: () => void) => void;
-}
-
-export default function Navbar({ onNavigateAway }: Props) {
+export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { setBackward } = useNavigationDir();
+  const { setBackward, callGuard } = useNavigationDir();
 
   function handleHomeClick(e: React.MouseEvent) {
     if (pathname === '/') return;
     e.preventDefault();
-    const nav = () => { setBackward(); router.push('/'); };
-    if (onNavigateAway) {
-      onNavigateAway(nav);
-    } else {
-      nav();
-    }
+    callGuard(() => { setBackward(); router.push('/'); });
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#1e1e1e] bg-[#0a0a0a]/80 backdrop-blur-md">
+    <header className="shrink-0 border-b border-[#1e1e1e] bg-[#0a0a0a]/80 backdrop-blur-md z-50">
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-6 py-4">
         <a href="/" onClick={handleHomeClick} className="flex items-center gap-3 group cursor-pointer">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#4ade80]/10 ring-1 ring-[#4ade80]/20 transition-all group-hover:bg-[#4ade80]/20 group-hover:ring-[#4ade80]/40">
