@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useNavigationDir } from './NavigationProvider';
 
 interface Props {
-  onNavigateAway?: () => boolean; // return false to cancel navigation
+  onNavigateAway?: (nav: () => void) => void;
 }
 
 export default function Navbar({ onNavigateAway }: Props) {
@@ -16,9 +16,12 @@ export default function Navbar({ onNavigateAway }: Props) {
   function handleHomeClick(e: React.MouseEvent) {
     if (pathname === '/') return;
     e.preventDefault();
-    if (onNavigateAway && !onNavigateAway()) return;
-    setBackward();
-    router.push('/');
+    const nav = () => { setBackward(); router.push('/'); };
+    if (onNavigateAway) {
+      onNavigateAway(nav);
+    } else {
+      nav();
+    }
   }
 
   return (
