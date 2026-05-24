@@ -123,3 +123,13 @@ src/
 | `RCON_PASSWORD` | *(required for reload)* | RCON password |
 | `RCON_RELOAD_COMMAND` | `reload confirm` | Command sent on reload (`%plugin%` = plugin name) |
 | `PORT` | `3000` | Web panel port |
+
+---
+
+## Roadmap
+
+- **Plugin upgrades** — upload a new `.jar` through the panel to replace an existing plugin. The flow would be: upload via a file picker, swap the jar in the plugins folder, then trigger a server restart (most plugins require a full restart rather than `/reload` to properly swap jars). Requires either RCON restart support or a separate restart mechanism on the host.
+- **Plugin enable/disable** — move jars in/out of a `disabled/` subfolder without deleting them
+- **Dependency graph** — visualise `depend` and `softdepend` relationships between plugins
+- **Config diff view** — show what changed since the last save with a side-by-side diff
+- **Multi-server support** — manage plugins across multiple server instances from one panel
