@@ -31,6 +31,9 @@ interface PluginDetail {
   configs: string[];
 }
 
+// Duration of the card-expansion layoutId animation
+const EXPAND_MS = 450;
+
 export default function PluginPage() {
   const { name } = useParams<{ name: string }>();
   const router = useRouter();
@@ -45,21 +48,23 @@ export default function PluginPage() {
   const [isDirty, setIsDirty] = useState(false);
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [pendingNav, setPendingNav] = useState<(() => void) | null>(null);
+  // True once the card expansion animation has had time to complete
+  const [expanded, setExpanded] = useState(false);
 
-  // Register / clear navigation guard based on dirty state
+  useEffect(() => {
+    const t = setTimeout(() => setExpanded(true), EXPAND_MS);
+    return () => clearTimeout(t);
+  }, []);
+
   useEffect(() => {
     if (isDirty) {
-      setGuard((nav) => {
-        setPendingNav(() => nav);
-        setShowLeaveModal(true);
-      });
+      setGuard((nav) => { setPendingNav(() => nav); setShowLeaveModal(true); });
     } else {
       setGuard(null);
     }
     return () => setGuard(null);
   }, [isDirty, setGuard]);
 
-  // Browser unload guard
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => { if (isDirty) e.preventDefault(); };
     window.addEventListener('beforeunload', handler);
@@ -86,147 +91,225 @@ export default function PluginPage() {
 
   useEffect(() => { loadPlugin(); }, [loadPlugin]);
 
+  // How long to delay body animations after the plugin data arrives,
+  // so they don't fire before the card has finished expanding.
+  function bodyDelay(extra = 0) {
+    // If the card has already finished expanding by the time data loads,
+    // start immediately (extra only). Otherwise wait for the remainder.
+    return expanded ? extra : (EXPAND_MS / 1000) + extra;
+  }
+
   return (
     <>
-      {/* layoutId matches the PluginCard — this is what expands from the grid */}
+      {/* layoutId matches the PluginCard — expands from the grid */}
       <motion.div
         layoutId={`plugin-card-${pluginName}`}
         className="flex flex-1 flex-col overflow-hidden bg-[#111111]"
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: EXPAND_MS / 1000, ease: [0.22, 1, 0.36, 1] }}
       >
-        <AnimatePresence mode="wait">
-          {loading && (
-            <motion.div
-              key="loading"
+        {/* ── Plugin header ── always rendered; pre-API fields appear immediately */}
+        <div className="shrink-0 border-b border-[#1e1e1e] bg-[#0d0d0d] px-6 py-4">
+          <div className="mx-auto flex max-w-7xl items-start gap-4">
+
+            {/* Back button — dissolves in */}
+            <motion.button
+              onClick={guardedBack}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-1 items-center justify-center text-[#6b7280]"
+              transition={{ duration: 0.2, delay: 0.2 }}
+              className="mt-0.5 flex shrink-0 items-center gap-1.5 rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-1.5 text-xs text-[#9ca3af] transition-all hover:border-[#4ade80]/30 hover:text-[#4ade80]"
             >
-              <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-              <span className="text-sm">Loading plugin…</span>
-            </motion.div>
-          )}
+              <ArrowLeft className="h-3 w-3" />
+              Back
+            </motion.button>
 
-          {error && (
-            <motion.div
-              key="error"
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex flex-1 items-center justify-center px-6"
-            >
-              <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 px-5 py-4 text-sm text-red-400">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                <span>Failed to load plugin: {error}</span>
-              </div>
-            </motion.div>
-          )}
+            <div className="flex min-w-0 items-center gap-3">
+              {/* Green icon — dissolves in */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.7 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.25, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#4ade80]/10 ring-1 ring-[#4ade80]/20"
+              >
+                <Package className="h-5 w-5 text-[#4ade80]" />
+              </motion.div>
 
-          {!loading && !error && plugin && (
-            <motion.div
-              key="content"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2, delay: 0.15 }}
-              className="flex flex-1 flex-col overflow-hidden"
-            >
-              {/* Plugin header */}
-              <div className="shrink-0 border-b border-[#1e1e1e] bg-[#0d0d0d] px-6 py-4">
-                <div className="mx-auto flex max-w-7xl items-start gap-4">
-                  <button
-                    onClick={guardedBack}
-                    className="mt-0.5 flex shrink-0 items-center gap-1.5 rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-1.5 text-xs text-[#9ca3af] transition-all hover:border-[#4ade80]/30 hover:text-[#4ade80]"
+              <div className="min-w-0">
+                {/* Title — layoutId flies from card */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <motion.h1
+                    layoutId={`plugin-name-${pluginName}`}
+                    className="text-base font-bold text-white"
+                    transition={{ duration: EXPAND_MS / 1000, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    <ArrowLeft className="h-3 w-3" />
-                    Back
-                  </button>
+                    {pluginName}
+                  </motion.h1>
 
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#4ade80]/10 ring-1 ring-[#4ade80]/20">
-                      <Package className="h-5 w-5 text-[#4ade80]" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h1 className="text-base font-bold text-white">{plugin.name}</h1>
-                        <span className="rounded-full bg-[#4ade80]/10 px-2 py-0.5 text-[10px] font-medium text-[#4ade80] ring-1 ring-[#4ade80]/20">
-                          v{plugin.version}
-                        </span>
-                      </div>
-                      {plugin.description && (
-                        <p className="mt-0.5 text-xs text-[#6b7280]">{plugin.description}</p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="ml-auto hidden flex-wrap items-center gap-3 lg:flex">
-                    {plugin.authors.length > 0 && (
-                      <MetaBadge icon={<User className="h-3 w-3" />} label={plugin.authors.join(', ')} />
-                    )}
-                    {plugin.apiVersion && (
-                      <MetaBadge icon={<Tag className="h-3 w-3" />} label={`API ${plugin.apiVersion}`} />
-                    )}
-                    {plugin.depend && plugin.depend.length > 0 && (
-                      <MetaBadge
-                        icon={<Layers className="h-3 w-3" />}
-                        label={`Depends: ${plugin.depend.join(', ')}`}
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Body: sidebar + editor */}
-              <div className="flex flex-1 overflow-hidden">
-                <aside className="flex w-56 shrink-0 flex-col border-r border-[#1e1e1e] bg-[#0d0d0d]">
-                  <div className="flex items-center gap-2 border-b border-[#1e1e1e] px-4 py-3">
-                    <FolderOpen className="h-3.5 w-3.5 text-[#4b5563]" />
-                    <span className="text-xs font-medium text-[#6b7280] uppercase tracking-wider">
-                      Config Files
-                    </span>
-                  </div>
-                  <div className="flex-1 overflow-y-auto">
-                    <ConfigFileTree
-                      files={plugin.configs}
-                      selected={selectedConfig}
-                      onSelect={setSelectedConfig}
-                    />
-                  </div>
-                </aside>
-
-                <div className="flex flex-1 flex-col overflow-hidden">
-                  <AnimatePresence mode="wait">
-                    {selectedConfig ? (
-                      <motion.div
-                        key={selectedConfig}
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -6 }}
-                        transition={{ duration: 0.18 }}
-                        className="flex h-full flex-col"
+                  {/* Version badge — wipes in after API */}
+                  <AnimatePresence>
+                    {plugin && (
+                      <motion.span
+                        key="version"
+                        initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
+                        animate={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }}
+                        transition={{ duration: 0.3, delay: bodyDelay(0), ease: [0.22, 1, 0.36, 1] }}
+                        className="rounded-full bg-[#4ade80]/10 px-2 py-0.5 text-[10px] font-medium text-[#4ade80] ring-1 ring-[#4ade80]/20"
                       >
-                        <ConfigEditor
-                          pluginName={plugin.name}
-                          filename={selectedConfig}
-                          onDirtyChange={setIsDirty}
-                        />
-                      </motion.div>
-                    ) : (
-                      <motion.div
-                        key="empty"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        className="flex h-full flex-col items-center justify-center gap-3 text-[#4b5563]"
-                      >
-                        <FolderOpen className="h-10 w-10 opacity-30" />
-                        <p className="text-sm">Select a config file to edit</p>
-                      </motion.div>
+                        v{plugin.version}
+                      </motion.span>
                     )}
                   </AnimatePresence>
                 </div>
+
+                {/* Description — wipes in after API */}
+                <AnimatePresence>
+                  {plugin?.description && (
+                    <motion.p
+                      key="desc"
+                      initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
+                      animate={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }}
+                      transition={{ duration: 0.3, delay: bodyDelay(0.05), ease: [0.22, 1, 0.36, 1] }}
+                      className="mt-0.5 text-xs text-[#6b7280]"
+                    >
+                      {plugin.description}
+                    </motion.p>
+                  )}
+                </AnimatePresence>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+
+            {/* Meta badges — wipe in from the right after API */}
+            <AnimatePresence>
+              {plugin && (plugin.authors.length > 0 || plugin.apiVersion || plugin.depend?.length) && (
+                <motion.div
+                  key="meta"
+                  initial={{ opacity: 0, clipPath: 'inset(0 0% 0 100%)' }}
+                  animate={{ opacity: 1, clipPath: 'inset(0 0% 0 0%)' }}
+                  transition={{ duration: 0.35, delay: bodyDelay(0.1), ease: [0.22, 1, 0.36, 1] }}
+                  className="ml-auto hidden flex-wrap items-center gap-3 lg:flex"
+                >
+                  {plugin.authors.length > 0 && (
+                    <MetaBadge icon={<User className="h-3 w-3" />} label={plugin.authors.join(', ')} />
+                  )}
+                  {plugin.apiVersion && (
+                    <MetaBadge icon={<Tag className="h-3 w-3" />} label={`API ${plugin.apiVersion}`} />
+                  )}
+                  {plugin.depend && plugin.depend.length > 0 && (
+                    <MetaBadge
+                      icon={<Layers className="h-3 w-3" />}
+                      label={`Depends: ${plugin.depend.join(', ')}`}
+                    />
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* ── Body ── */}
+        <div className="flex flex-1 overflow-hidden">
+          {/* Loading / error states */}
+          <AnimatePresence>
+            {loading && (
+              <motion.div
+                key="loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 flex items-center justify-center text-[#6b7280] pointer-events-none"
+                style={{ top: '4.5rem' }}
+              >
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                <span className="text-sm">Loading plugin…</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                key="error"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex flex-1 items-center justify-center px-6"
+              >
+                <div className="flex items-center gap-3 rounded-xl border border-red-500/20 bg-red-500/5 px-5 py-4 text-sm text-red-400">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>Failed to load plugin: {error}</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Config sidebar — wipes in from the left */}
+          <AnimatePresence>
+            {plugin && (
+              <motion.aside
+                key="sidebar"
+                initial={{ x: -224, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ duration: 0.35, delay: bodyDelay(0.1), ease: [0.22, 1, 0.36, 1] }}
+                className="flex w-56 shrink-0 flex-col border-r border-[#1e1e1e] bg-[#0d0d0d]"
+              >
+                <div className="flex items-center gap-2 border-b border-[#1e1e1e] px-4 py-3">
+                  <FolderOpen className="h-3.5 w-3.5 text-[#4b5563]" />
+                  <span className="text-xs font-medium text-[#6b7280] uppercase tracking-wider">
+                    Config Files
+                  </span>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                  <ConfigFileTree
+                    files={plugin.configs}
+                    selected={selectedConfig}
+                    onSelect={setSelectedConfig}
+                  />
+                </div>
+              </motion.aside>
+            )}
+          </AnimatePresence>
+
+          {/* Editor pane — dissolves in */}
+          <AnimatePresence>
+            {plugin && (
+              <motion.div
+                key="editor"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: bodyDelay(0.25) }}
+                className="flex flex-1 flex-col overflow-hidden"
+              >
+                <AnimatePresence mode="wait">
+                  {selectedConfig ? (
+                    <motion.div
+                      key={selectedConfig}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -6 }}
+                      transition={{ duration: 0.18 }}
+                      className="flex h-full flex-col"
+                    >
+                      <ConfigEditor
+                        pluginName={plugin.name}
+                        filename={selectedConfig}
+                        onDirtyChange={setIsDirty}
+                      />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="empty"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="flex h-full flex-col items-center justify-center gap-3 text-[#4b5563]"
+                    >
+                      <FolderOpen className="h-10 w-10 opacity-30" />
+                      <p className="text-sm">Select a config file to edit</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </motion.div>
 
       <ConfirmModal

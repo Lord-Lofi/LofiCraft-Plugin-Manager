@@ -35,7 +35,12 @@ export default function PluginCard({ plugin, index }: Props) {
       <Link href={`/plugins/${encodeURIComponent(plugin.name)}`} className="flex flex-1 flex-col">
         {/* Header */}
         <div className="mb-3 flex items-start justify-between gap-3">
-          <h3 className="truncate text-sm font-semibold text-white">{plugin.name}</h3>
+          <motion.h3
+            layoutId={`plugin-name-${plugin.name}`}
+            className="truncate text-sm font-semibold text-white"
+          >
+            {plugin.name}
+          </motion.h3>
           <span className="shrink-0 rounded-full bg-[#4ade80]/10 px-2 py-0.5 text-[10px] font-medium text-[#4ade80] ring-1 ring-[#4ade80]/20">
             v{plugin.version}
           </span>
