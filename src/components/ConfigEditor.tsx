@@ -33,9 +33,10 @@ function detectLanguage(filename: string): string {
 interface Props {
   pluginName: string;
   filename: string;
+  onDirtyChange?: (dirty: boolean) => void;
 }
 
-export default function ConfigEditor({ pluginName, filename }: Props) {
+export default function ConfigEditor({ pluginName, filename, onDirtyChange }: Props) {
   const [content, setContent] = useState<string>('');
   const [original, setOriginal] = useState<string>('');
   const [loadingFile, setLoadingFile] = useState(true);
@@ -97,6 +98,10 @@ export default function ConfigEditor({ pluginName, filename }: Props) {
   }
 
   const isDirty = content !== original;
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   return (
     <div className="flex h-full flex-col">

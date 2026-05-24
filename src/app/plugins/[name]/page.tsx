@@ -16,6 +16,7 @@ import {
 import Navbar from '@/components/Navbar';
 import ConfigFileTree from '@/components/ConfigFileTree';
 import ConfigEditor from '@/components/ConfigEditor';
+import { useNavigationDir } from '@/components/NavigationProvider';
 
 interface PluginDetail {
   id: string;
@@ -50,7 +51,23 @@ export default function PluginPage() {
   const router = useRouter();
   const pluginName = decodeURIComponent(name);
 
+  const { setBackward } = useNavigationDir();
   const [plugin, setPlugin] = useState<PluginDetail | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      if (isDirty) { e.preventDefault(); }
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
+
+  function guardedBack() {
+    if (isDirty && !window.confirm('You have unsaved changes. Leave anyway?')) return;
+    setBackward();
+    router.back();
+  }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedConfig, setSelectedConfig] = useState<string | null>(null);
@@ -74,7 +91,10 @@ export default function PluginPage() {
 
   return (
     <div className="flex h-screen flex-col bg-[#0a0a0a] overflow-hidden">
-      <Navbar />
+      <Navbar onNavigateAway={() => {
+        if (isDirty) return window.confirm('You have unsaved changes. Leave anyway?');
+        return true;
+      }} />
 
       <AnimatePresence mode="wait">
         {loading && (
@@ -117,7 +137,7 @@ export default function PluginPage() {
             <div className="shrink-0 border-b border-[#1e1e1e] bg-[#0d0d0d] px-6 py-4">
               <div className="mx-auto flex max-w-7xl items-start gap-4">
                 <button
-                  onClick={() => router.back()}
+                  onClick={guardedBack}
                   className="mt-0.5 flex shrink-0 items-center gap-1.5 rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-1.5 text-xs text-[#9ca3af] transition-all hover:border-[#4ade80]/30 hover:text-[#4ade80]"
                 >
                   <ArrowLeft className="h-3 w-3" />
@@ -209,6 +229,7 @@ export default function PluginPage() {
                       <ConfigEditor
                         pluginName={plugin.name}
                         filename={selectedConfig}
+                        onDirtyChange={setIsDirty}
                       />
                     </motion.div>
                   ) : (
