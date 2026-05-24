@@ -27,7 +27,7 @@ export default function PluginCard({ plugin, index }: Props) {
     <motion.div
       layoutId={`plugin-card-${plugin.name}`}
       className="group relative flex flex-col rounded-xl border border-[#1e1e1e] bg-[#111111] p-5 transition-colors duration-200 hover:border-[#4ade80]/30 hover:shadow-[0_0_20px_rgba(74,222,128,0.06)] cursor-pointer"
-      initial={isBack ? { opacity: 0 } : { opacity: 0, y: 40 }}
+      initial={isBack ? { opacity: 1 } : { opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: isBack ? 0 : index * 0.07, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -5, scale: 1.02, transition: { duration: 0.2 } }}
