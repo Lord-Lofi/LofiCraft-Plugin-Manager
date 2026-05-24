@@ -31,17 +31,17 @@ interface PluginDetail {
 }
 
 const pageVariants = {
-  initial: { opacity: 0, y: 16 },
+  initial: { opacity: 0, y: 24 },
   animate: { opacity: 1, y: 0 },
 };
 
 const sidebarVariants = {
-  initial: { opacity: 0, x: -12 },
+  initial: { opacity: 0, x: -32 },
   animate: { opacity: 1, x: 0 },
 };
 
 const editorVariants = {
-  initial: { opacity: 0, x: 12 },
+  initial: { opacity: 0, x: 32 },
   animate: { opacity: 1, x: 0 },
 };
 
@@ -110,7 +110,7 @@ export default function PluginPage() {
             variants={pageVariants}
             initial="initial"
             animate="animate"
-            transition={{ duration: 0.25, ease: 'easeOut' }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-1 flex-col overflow-hidden"
           >
             {/* Plugin header */}
@@ -170,7 +170,7 @@ export default function PluginPage() {
                 variants={sidebarVariants}
                 initial="initial"
                 animate="animate"
-                transition={{ duration: 0.3, delay: 0.1, ease: 'easeOut' }}
+                transition={{ type: 'spring', stiffness: 300, damping: 28, delay: 0.1 }}
                 className="flex w-56 shrink-0 flex-col border-r border-[#1e1e1e] bg-[#0d0d0d]"
               >
                 <div className="flex items-center gap-2 border-b border-[#1e1e1e] px-4 py-3">
@@ -193,7 +193,7 @@ export default function PluginPage() {
                 variants={editorVariants}
                 initial="initial"
                 animate="animate"
-                transition={{ duration: 0.3, delay: 0.15, ease: 'easeOut' }}
+                transition={{ type: 'spring', stiffness: 300, damping: 28, delay: 0.18 }}
                 className="flex flex-1 flex-col overflow-hidden"
               >
                 <AnimatePresence mode="wait">

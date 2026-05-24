@@ -21,11 +21,11 @@ interface Props {
 export default function PluginCard({ plugin, index }: Props) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.04, ease: 'easeOut' }}
-      whileHover={{ y: -2, scale: 1.01 }}
-      whileTap={{ scale: 0.97 }}
+      transition={{ duration: 0.45, delay: index * 0.07, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -5, scale: 1.02, transition: { duration: 0.2 } }}
+      whileTap={{ scale: 0.96, transition: { duration: 0.1 } }}
     >
       <Link href={`/plugins/${encodeURIComponent(plugin.name)}`} className="block group h-full">
         <div className="relative flex h-full flex-col rounded-xl border border-[#1e1e1e] bg-[#111111] p-5 transition-all duration-200 hover:border-[#4ade80]/30 hover:shadow-[0_0_20px_rgba(74,222,128,0.06)]">
