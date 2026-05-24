@@ -6,22 +6,29 @@ import { Search, Loader2, AlertCircle } from 'lucide-react';
 import PluginCard, { type PluginCardData } from './PluginCard';
 import { useNavigationDir } from './NavigationProvider';
 
+// Module-level cache — survives component unmounts so cards render
+// immediately on back-navigation, letting layoutId collapse fire before
+// Framer Motion discards the stored projection on the next rAF tick.
+let pluginListCache: PluginCardData[] | null = null;
+
 export default function PluginGrid() {
   const { getDir } = useNavigationDir();
   // Capture direction at render time — before Home's useEffect calls resetDir()
   const [isBack] = useState(() => getDir() === -1);
-  const [plugins, setPlugins] = useState<PluginCardData[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [plugins, setPlugins] = useState<PluginCardData[]>(() => pluginListCache ?? []);
+  const [loading, setLoading] = useState(() => pluginListCache === null);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
 
   useEffect(() => {
+    if (pluginListCache !== null) return;
     fetch('/api/plugins')
       .then((r) => {
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         return r.json();
       })
-      .then((data) => {
+      .then((data: PluginCardData[]) => {
+        pluginListCache = data;
         setPlugins(data);
         setLoading(false);
       })
