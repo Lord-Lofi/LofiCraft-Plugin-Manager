@@ -4,8 +4,12 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Loader2, AlertCircle } from 'lucide-react';
 import PluginCard, { type PluginCardData } from './PluginCard';
+import { useNavigationDir } from './NavigationProvider';
 
 export default function PluginGrid() {
+  const { getDir } = useNavigationDir();
+  // Capture direction at render time — before Home's useEffect calls resetDir()
+  const [isBack] = useState(() => getDir() === -1);
   const [plugins, setPlugins] = useState<PluginCardData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -94,7 +98,7 @@ export default function PluginGrid() {
       {!loading && !error && filtered.length > 0 && (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((plugin, i) => (
-            <PluginCard key={plugin.id} plugin={plugin} index={i} />
+            <PluginCard key={plugin.id} plugin={plugin} index={i} isBack={isBack} />
           ))}
         </div>
       )}

@@ -3,7 +3,6 @@
 import { motion } from 'framer-motion';
 import { FileText, User, Tag } from 'lucide-react';
 import Link from 'next/link';
-import { useNavigationDir } from './NavigationProvider';
 
 export interface PluginCardData {
   id: string;
@@ -17,11 +16,10 @@ export interface PluginCardData {
 interface Props {
   plugin: PluginCardData;
   index: number;
+  isBack: boolean;
 }
 
-export default function PluginCard({ plugin, index }: Props) {
-  const { getDir } = useNavigationDir();
-  const isBack = getDir() === -1;
+export default function PluginCard({ plugin, index, isBack }: Props) {
 
   return (
     <motion.div
