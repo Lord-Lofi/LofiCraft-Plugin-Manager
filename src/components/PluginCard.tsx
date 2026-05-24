@@ -24,7 +24,8 @@ export default function PluginCard({ plugin, index }: Props) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: index * 0.04, ease: 'easeOut' }}
-      whileHover={{ y: -2 }}
+      whileHover={{ y: -2, scale: 1.01 }}
+      whileTap={{ scale: 0.97 }}
     >
       <Link href={`/plugins/${encodeURIComponent(plugin.name)}`} className="block group h-full">
         <div className="relative flex h-full flex-col rounded-xl border border-[#1e1e1e] bg-[#111111] p-5 transition-all duration-200 hover:border-[#4ade80]/30 hover:shadow-[0_0_20px_rgba(74,222,128,0.06)]">
