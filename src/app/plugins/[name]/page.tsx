@@ -111,12 +111,12 @@ export default function PluginPage() {
         <div className="shrink-0 border-b border-[#1e1e1e] bg-[#0d0d0d] px-6 py-4">
           <div className="mx-auto flex max-w-7xl items-start gap-4">
 
-            {/* Back button — dissolves in */}
+            {/* Back button — blurs in */}
             <motion.button
               onClick={guardedBack}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.2, delay: 0.2 }}
+              initial={{ opacity: 0, filter: 'blur(6px)' }}
+              animate={{ opacity: 1, filter: 'blur(0px)' }}
+              transition={{ duration: 0.3, delay: 0.2 }}
               className="mt-0.5 flex shrink-0 items-center gap-1.5 rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-1.5 text-xs text-[#9ca3af] transition-all hover:border-[#4ade80]/30 hover:text-[#4ade80]"
             >
               <ArrowLeft className="h-3 w-3" />
@@ -124,11 +124,11 @@ export default function PluginPage() {
             </motion.button>
 
             <div className="flex min-w-0 items-center gap-3">
-              {/* Green icon — dissolves in */}
+              {/* Green icon — blurs in */}
               <motion.div
-                initial={{ opacity: 0, scale: 0.7 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.25, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                initial={{ opacity: 0, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, filter: 'blur(0px)' }}
+                transition={{ duration: 0.3, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#4ade80]/10 ring-1 ring-[#4ade80]/20"
               >
                 <Package className="h-5 w-5 text-[#4ade80]" />
@@ -150,8 +150,8 @@ export default function PluginPage() {
                     {plugin && (
                       <motion.span
                         key="version"
-                        initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
-                        animate={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }}
+                        initial={{ opacity: 0, filter: 'blur(6px)' }}
+                        animate={{ opacity: 1, filter: 'blur(0px)' }}
                         transition={{ duration: 0.3, delay: bodyDelay(0), ease: [0.22, 1, 0.36, 1] }}
                         className="rounded-full bg-[#4ade80]/10 px-2 py-0.5 text-[10px] font-medium text-[#4ade80] ring-1 ring-[#4ade80]/20"
                       >
@@ -166,8 +166,8 @@ export default function PluginPage() {
                   {plugin?.description && (
                     <motion.p
                       key="desc"
-                      initial={{ opacity: 0, clipPath: 'inset(0 100% 0 0)' }}
-                      animate={{ opacity: 1, clipPath: 'inset(0 0% 0 0)' }}
+                      initial={{ opacity: 0, filter: 'blur(6px)' }}
+                      animate={{ opacity: 1, filter: 'blur(0px)' }}
                       transition={{ duration: 0.3, delay: bodyDelay(0.05), ease: [0.22, 1, 0.36, 1] }}
                       className="mt-0.5 text-xs text-[#6b7280]"
                     >
@@ -183,8 +183,8 @@ export default function PluginPage() {
               {plugin && (plugin.authors.length > 0 || plugin.apiVersion || plugin.depend?.length) && (
                 <motion.div
                   key="meta"
-                  initial={{ opacity: 0, clipPath: 'inset(0 0% 0 100%)' }}
-                  animate={{ opacity: 1, clipPath: 'inset(0 0% 0 0%)' }}
+                  initial={{ opacity: 0, filter: 'blur(6px)' }}
+                  animate={{ opacity: 1, filter: 'blur(0px)' }}
                   transition={{ duration: 0.35, delay: bodyDelay(0.1), ease: [0.22, 1, 0.36, 1] }}
                   className="ml-auto hidden flex-wrap items-center gap-3 lg:flex"
                 >
@@ -246,8 +246,8 @@ export default function PluginPage() {
             {plugin && (
               <motion.aside
                 key="sidebar"
-                initial={{ x: -224, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
+                initial={{ x: -224, opacity: 0, filter: 'blur(4px)' }}
+                animate={{ x: 0, opacity: 1, filter: 'blur(0px)' }}
                 transition={{ duration: 0.35, delay: bodyDelay(0.1), ease: [0.22, 1, 0.36, 1] }}
                 className="flex w-56 shrink-0 flex-col border-r border-[#1e1e1e] bg-[#0d0d0d]"
               >
@@ -273,9 +273,9 @@ export default function PluginPage() {
             {plugin && (
               <motion.div
                 key="editor"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.3, delay: bodyDelay(0.25) }}
+                initial={{ opacity: 0, filter: 'blur(8px)' }}
+                animate={{ opacity: 1, filter: 'blur(0px)' }}
+                transition={{ duration: 0.35, delay: bodyDelay(0.25) }}
                 className="flex flex-1 flex-col overflow-hidden"
               >
                 <AnimatePresence mode="wait">

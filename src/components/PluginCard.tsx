@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { FileText, User, Tag } from 'lucide-react';
 import Link from 'next/link';
+import { useNavigationDir } from './NavigationProvider';
 
 export interface PluginCardData {
   id: string;
@@ -19,13 +20,16 @@ interface Props {
 }
 
 export default function PluginCard({ plugin, index }: Props) {
+  const { getDir } = useNavigationDir();
+  const isBack = getDir() === -1;
+
   return (
     <motion.div
       layoutId={`plugin-card-${plugin.name}`}
       className="group relative flex flex-col rounded-xl border border-[#1e1e1e] bg-[#111111] p-5 transition-colors duration-200 hover:border-[#4ade80]/30 hover:shadow-[0_0_20px_rgba(74,222,128,0.06)] cursor-pointer"
-      initial={{ opacity: 0, y: 40 }}
+      initial={isBack ? false : { opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, delay: index * 0.07, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.45, delay: isBack ? 0 : index * 0.07, ease: [0.22, 1, 0.36, 1] }}
       whileHover={{ y: -5, scale: 1.02, transition: { duration: 0.2 } }}
       whileTap={{ scale: 0.96, transition: { duration: 0.1 } }}
     >
