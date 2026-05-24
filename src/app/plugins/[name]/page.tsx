@@ -38,7 +38,7 @@ function dissolve(delay = 0) {
   return {
     initial: { opacity: 0 },
     animate: { opacity: 1 },
-    transition: { duration: 0.35, delay, ease: 'easeOut' },
+    transition: { duration: 0.35, delay, ease: [0, 0, 0.58, 1] as const },
   };
 }
 
