@@ -73,7 +73,7 @@ export default function PluginPage() {
   }, [isDirty]);
 
   function guardedBack() {
-    callGuard(() => { setBackward(); router.back(); });
+    callGuard(() => { setBackward(); router.push('/'); });
   }
 
   const loadPlugin = useCallback(async () => {
@@ -103,10 +103,10 @@ export default function PluginPage() {
         <div className="shrink-0 border-b border-[#1e1e1e] bg-[#0d0d0d] px-6 py-4">
           <div className="mx-auto flex max-w-7xl items-start gap-4">
 
-            {/* Back button — dissolves in */}
+            {/* Back button — dissolves in after card expansion */}
             <motion.button
               onClick={guardedBack}
-              {...dissolve(0.2)}
+              {...dissolve(0.5)}
               className="mt-0.5 flex shrink-0 items-center gap-1.5 rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] px-3 py-1.5 text-xs text-[#9ca3af] transition-all hover:border-[#4ade80]/30 hover:text-[#4ade80]"
             >
               <ArrowLeft className="h-3 w-3" />
@@ -114,9 +114,9 @@ export default function PluginPage() {
             </motion.button>
 
             <div className="flex min-w-0 items-center gap-3">
-              {/* Green icon — dissolves in */}
+              {/* Green icon — dissolves in after card expansion */}
               <motion.div
-                {...dissolve(0.25)}
+                {...dissolve(0.55)}
                 className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#4ade80]/10 ring-1 ring-[#4ade80]/20"
               >
                 <Package className="h-5 w-5 text-[#4ade80]" />
@@ -133,9 +133,9 @@ export default function PluginPage() {
                     {pluginName}
                   </motion.h1>
 
-                  {/* Version badge — dissolves in after API */}
+                  {/* Version badge — dissolves in after API + expansion */}
                   {plugin && (
-                    <motion.span {...dissolve(0.05)}
+                    <motion.span {...dissolve(0.4)}
                       className="rounded-full bg-[#4ade80]/10 px-2 py-0.5 text-[10px] font-medium text-[#4ade80] ring-1 ring-[#4ade80]/20"
                     >
                       v{plugin.version}
@@ -145,7 +145,7 @@ export default function PluginPage() {
 
                 {/* Description — dissolves in after API */}
                 {plugin?.description && (
-                  <motion.p {...dissolve(0.1)} className="mt-0.5 text-xs text-[#6b7280]">
+                  <motion.p {...dissolve(0.45)} className="mt-0.5 text-xs text-[#6b7280]">
                     {plugin.description}
                   </motion.p>
                 )}
@@ -155,7 +155,7 @@ export default function PluginPage() {
             {/* Meta badges — dissolves in after API */}
             {plugin && (plugin.authors.length > 0 || plugin.apiVersion || plugin.depend?.length) && (
               <motion.div
-                {...dissolve(0.15)}
+                {...dissolve(0.5)}
                 className="ml-auto hidden flex-wrap items-center gap-3 lg:flex"
               >
                 {plugin.authors.length > 0 && (
@@ -210,7 +210,7 @@ export default function PluginPage() {
             <motion.aside
               initial={{ x: -224, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.35, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.35, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="flex w-56 shrink-0 flex-col border-r border-[#1e1e1e] bg-[#0d0d0d]"
             >
               <div className="flex items-center gap-2 border-b border-[#1e1e1e] px-4 py-3">
@@ -232,7 +232,7 @@ export default function PluginPage() {
           {/* Editor — dissolves in */}
           {plugin && (
             <motion.div
-              {...dissolve(0.25)}
+              {...dissolve(0.55)}
               className="flex flex-1 flex-col overflow-hidden"
             >
               <AnimatePresence mode="wait">
