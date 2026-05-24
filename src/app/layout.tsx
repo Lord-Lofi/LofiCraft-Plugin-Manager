@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Toaster } from 'sonner';
 import { NavigationProvider } from '@/components/NavigationProvider';
-import PageTransition from '@/components/PageTransition';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -14,7 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <NavigationProvider>
-          <PageTransition>{children}</PageTransition>
+          {children}
         </NavigationProvider>
         <Toaster
           position="bottom-right"

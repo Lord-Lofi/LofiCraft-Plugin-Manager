@@ -71,7 +71,10 @@ export default function ConfigEditor({ pluginName, filename, onDirtyChange }: Pr
         method: 'PUT',
         body: content,
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.code ? `${data.code}: ${data.error}` : (data.error ?? `HTTP ${res.status}`));
+      }
       setOriginal(content);
       toast.success('Config saved');
     } catch (err) {

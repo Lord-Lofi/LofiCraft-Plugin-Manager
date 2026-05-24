@@ -34,6 +34,8 @@ export async function PUT(req: Request, { params }: { params: Params }) {
     return NextResponse.json({ ok: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
-    return NextResponse.json({ error: message }, { status: 500 });
+    const code = (err as NodeJS.ErrnoException).code;
+    console.error(`[write] ${plugin.name}/${joinFilepath(filepath)} — ${code ?? ''} ${message}`);
+    return NextResponse.json({ error: message, code }, { status: 500 });
   }
 }

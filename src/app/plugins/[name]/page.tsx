@@ -16,6 +16,7 @@ import {
 import Navbar from '@/components/Navbar';
 import ConfigFileTree from '@/components/ConfigFileTree';
 import ConfigEditor from '@/components/ConfigEditor';
+import ConfirmModal from '@/components/ConfirmModal';
 import { useNavigationDir } from '@/components/NavigationProvider';
 
 interface PluginDetail {
@@ -54,6 +55,8 @@ export default function PluginPage() {
   const { setBackward } = useNavigationDir();
   const [plugin, setPlugin] = useState<PluginDetail | null>(null);
   const [isDirty, setIsDirty] = useState(false);
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [pendingNav, setPendingNav] = useState<(() => void) | null>(null);
 
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
@@ -63,10 +66,17 @@ export default function PluginPage() {
     return () => window.removeEventListener('beforeunload', handler);
   }, [isDirty]);
 
+  function guardedNavigate(nav: () => void) {
+    if (isDirty) {
+      setPendingNav(() => nav);
+      setShowLeaveModal(true);
+    } else {
+      nav();
+    }
+  }
+
   function guardedBack() {
-    if (isDirty && !window.confirm('You have unsaved changes. Leave anyway?')) return;
-    setBackward();
-    router.back();
+    guardedNavigate(() => { setBackward(); router.back(); });
   }
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -91,10 +101,7 @@ export default function PluginPage() {
 
   return (
     <div className="flex h-screen flex-col bg-[#0a0a0a] overflow-hidden">
-      <Navbar onNavigateAway={() => {
-        if (isDirty) return window.confirm('You have unsaved changes. Leave anyway?');
-        return true;
-      }} />
+      <Navbar onNavigateAway={(nav) => guardedNavigate(nav)} />
 
       <AnimatePresence mode="wait">
         {loading && (
@@ -249,6 +256,14 @@ export default function PluginPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ConfirmModal
+        open={showLeaveModal}
+        title="Unsaved changes"
+        message="You have unsaved changes that will be lost. Are you sure you want to leave?"
+        onConfirm={() => { setShowLeaveModal(false); pendingNav?.(); }}
+        onCancel={() => { setShowLeaveModal(false); setPendingNav(null); }}
+      />
     </div>
   );
 }

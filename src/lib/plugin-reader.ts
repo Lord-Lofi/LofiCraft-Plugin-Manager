@@ -122,5 +122,8 @@ export function readConfigFile(plugin: PluginInfo, filename: string): string {
 }
 
 export function writeConfigFile(plugin: PluginInfo, filename: string, content: string): void {
-  fs.writeFileSync(safeConfigPath(plugin, filename), content, 'utf8');
+  const target = safeConfigPath(plugin, filename);
+  // Ensure the directory exists (plugin may not have created it yet)
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  fs.writeFileSync(target, content, 'utf8');
 }
