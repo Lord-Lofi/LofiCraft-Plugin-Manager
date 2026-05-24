@@ -52,6 +52,12 @@ RCON_PASSWORD=your_password_here
 
 # Optional: per-plugin reload with PluginMan (default reloads entire server)
 # RCON_RELOAD_COMMAND=plugman reload %plugin%
+
+# UID/GID the container runs as — must match the owner of your plugins folder
+# so config saves work without running as root. Find yours with:
+#   stat -c '%u %g' /path/to/your/plugins
+PUID=1000
+PGID=1000
 ```
 
 **3. Build and start**
@@ -123,6 +129,8 @@ src/
 | `RCON_PASSWORD` | *(required for reload)* | RCON password |
 | `RCON_RELOAD_COMMAND` | `reload confirm` | Command sent on reload (`%plugin%` = plugin name) |
 | `PORT` | `3000` | Web panel port |
+| `PUID` | `1000` | UID the container runs as — match the owner of your plugins folder |
+| `PGID` | `1000` | GID the container runs as — match the group of your plugins folder |
 
 ---
 

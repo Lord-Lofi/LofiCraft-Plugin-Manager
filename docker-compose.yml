@@ -14,4 +14,5 @@ services:
       - RCON_RELOAD_COMMAND=${RCON_RELOAD_COMMAND:-reload confirm}
     extra_hosts:
       - "host.docker.internal:host-gateway"
+    user: "${PUID:-1000}:${PGID:-1000}"
     restart: unless-stopped
