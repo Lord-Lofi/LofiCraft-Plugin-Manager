@@ -1,0 +1,17 @@
+services:
+  mc-panel:
+    build: .
+    container_name: loficraft-panel
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      - ${PLUGINS_PATH}:/plugins:rw
+    environment:
+      - PLUGINS_DIR=/plugins
+      - RCON_HOST=host.docker.internal
+      - RCON_PORT=${RCON_PORT:-25575}
+      - RCON_PASSWORD=${RCON_PASSWORD:-}
+      - RCON_RELOAD_COMMAND=${RCON_RELOAD_COMMAND:-reload confirm}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
