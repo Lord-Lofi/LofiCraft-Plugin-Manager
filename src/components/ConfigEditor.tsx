@@ -6,7 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Save, RefreshCw, Loader2, CheckCircle, AlertCircle, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
-const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
+// Load the bundled Monaco setup first, then the React wrapper (browser only).
+const MonacoEditor = dynamic(
+  () => import('@/lib/monaco-setup').then(() => import('@monaco-editor/react')),
+  {
   ssr: false,
   loading: () => (
     <div className="flex h-full items-center justify-center text-[#6b7280]">
@@ -14,7 +17,8 @@ const MonacoEditor = dynamic(() => import('@monaco-editor/react'), {
       <span className="text-sm">Loading editor…</span>
     </div>
   ),
-});
+  }
+);
 
 function detectLanguage(filename: string): string {
   const ext = filename.split('.').pop()?.toLowerCase() ?? '';

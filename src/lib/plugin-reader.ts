@@ -7,6 +7,10 @@ const PLUGINS_DIR = process.env.PLUGINS_DIR || '/plugins';
 
 const CONFIG_EXTENSIONS = new Set(['.yml', '.yaml', '.json', '.toml', '.conf', '.properties', '.txt']);
 
+// plugin.yml files are a few KB. Refuse to unpack anything much bigger, so a
+// crafted jar in the plugins folder can't exhaust memory (zip bomb).
+const MAX_PLUGIN_YML_BYTES = 1024 * 1024;
+
 export interface PluginInfo {
   id: string;
   jarFile: string;
@@ -28,8 +32,10 @@ function extractPluginYml(jarPath: string): Record<string, unknown> | null {
       zip.getEntry('plugin.yml') ??
       zip.getEntry('paper-plugin.yml') ??
       zip.getEntry('bungee.yml');
-    if (!entry) return null;
-    return yaml.load(entry.getData().toString('utf8')) as Record<string, unknown>;
+    if (!entry || entry.header.size > MAX_PLUGIN_YML_BYTES) return null;
+    const data = entry.getData();
+    if (data.length > MAX_PLUGIN_YML_BYTES) return null;
+    return yaml.load(data.toString('utf8')) as Record<string, unknown>;
   } catch {
     return null;
   }
