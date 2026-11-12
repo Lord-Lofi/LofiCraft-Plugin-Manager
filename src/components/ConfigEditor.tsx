@@ -73,6 +73,8 @@ export default function ConfigEditor({ pluginName, filename, onDirtyChange }: Pr
     try {
       const res = await fetch(`/api/plugins/${encodeURIComponent(pluginName)}/configs/${filepath}`, {
         method: 'PUT',
+        // Marks the request as coming from the panel (CSRF protection)
+        headers: { 'X-LofiCraft': '1', 'Content-Type': 'text/plain; charset=utf-8' },
         body: content,
       });
       if (!res.ok) {
@@ -93,6 +95,7 @@ export default function ConfigEditor({ pluginName, filename, onDirtyChange }: Pr
     try {
       const res = await fetch(`/api/plugins/${encodeURIComponent(pluginName)}/reload`, {
         method: 'POST',
+        headers: { 'X-LofiCraft': '1' },
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);

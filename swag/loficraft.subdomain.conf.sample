@@ -1,0 +1,33 @@
+## LofiCraft Panel behind SWAG with Authelia
+##
+## Copy to your SWAG config as nginx/proxy-confs/loficraft.subdomain.conf.
+## Serves the panel at loficraft.<your domain>. Make sure:
+##   - the panel is on SWAG's Docker network (docker-compose.swag.example.yml)
+##   - ALLOWED_HOSTS in the panel's .env contains loficraft.<your domain>
+##   - $upstream_app below matches CONTAINER_NAME (default: loficraft-panel)
+
+server {
+    listen 443 ssl;
+    listen [::]:443 ssl;
+
+    server_name loficraft.*;
+
+    include /config/nginx/ssl.conf;
+
+    # Matches the panel's 2 MB limit for saved config files
+    client_max_body_size 2m;
+
+    # Authelia: everyone must sign in before reaching the panel
+    include /config/nginx/authelia-server.conf;
+
+    location / {
+        include /config/nginx/authelia-location.conf;
+
+        include /config/nginx/proxy.conf;
+        include /config/nginx/resolver.conf;
+        set $upstream_app loficraft-panel;
+        set $upstream_port 3000;
+        set $upstream_proto http;
+        proxy_pass $upstream_proto://$upstream_app:$upstream_port;
+    }
+}

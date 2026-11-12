@@ -1,0 +1,19 @@
+# Optional: run the panel behind SWAG + Authelia instead of on a local port.
+#
+#   cp docker-compose.swag.example.yml docker-compose.override.yml
+#   docker compose up -d
+#
+# Docker Compose loads docker-compose.override.yml automatically. It removes
+# the published port and joins SWAG's Docker network, so the panel can only be
+# reached through SWAG (and Authelia). Set SWAG_NETWORK and ALLOWED_HOSTS in
+# .env. Requires Docker Compose 2.24 or newer (for !reset).
+services:
+  mc-panel:
+    ports: !reset []
+    networks:
+      - swag
+
+networks:
+  swag:
+    external: true
+    name: ${SWAG_NETWORK:?Set SWAG_NETWORK in .env to the name of SWAG's Docker network}

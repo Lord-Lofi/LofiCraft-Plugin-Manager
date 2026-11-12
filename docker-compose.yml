@@ -1,17 +1,44 @@
+# LofiCraft Panel
+#
+# All settings come from .env (copy .env.example). Nothing in this file needs
+# editing, and real paths, hostnames and passwords never go in it.
+#
+# The panel has no login of its own. Keep it bound to localhost (the default)
+# and put it behind SWAG + Authelia - see docker-compose.swag.example.yml and
+# the README. Never forward its port to the internet.
 services:
   mc-panel:
     build: .
-    container_name: loficraft-panel
+    container_name: ${CONTAINER_NAME:-loficraft-panel}
+    restart: unless-stopped
+
+    # Runs as the owner of your plugins folder, never as root, with no
+    # extra privileges and a read-only filesystem (except the mounts below).
+    user: "${PUID:-1000}:${PGID:-1000}"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/.next/cache
+
     ports:
-      - "${PORT:-3000}:3000"
+      # BIND_ADDRESS defaults to 127.0.0.1 (this machine only).
+      - "${BIND_ADDRESS:-127.0.0.1}:${PORT:-3000}:3000"
+
     volumes:
-      - ${PLUGINS_PATH}:/plugins:rw
+      - ${PLUGINS_PATH:?Set PLUGINS_PATH in .env}:/plugins:rw
+
     environment:
-      - PLUGINS_DIR=/plugins
-      - RCON_HOST=host.docker.internal
-      - RCON_PORT=${RCON_PORT:-25575}
-      - RCON_PASSWORD=${RCON_PASSWORD:-}
-      - RCON_RELOAD_COMMAND=${RCON_RELOAD_COMMAND:-reload confirm}
+      PLUGINS_DIR: /plugins
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
+      RCON_HOST: ${RCON_HOST:-host.docker.internal}
+      RCON_PORT: ${RCON_PORT:-25575}
+      RCON_PASSWORD: ${RCON_PASSWORD:?Set RCON_PASSWORD in .env}
+      RCON_RELOAD_COMMAND: ${RCON_RELOAD_COMMAND:-reload confirm}
+
+    # Lets RCON_HOST=host.docker.internal reach a server on this machine
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    restart: unless-stopped
