@@ -1,5 +1,5 @@
 # Node.js 22 LTS. Dependabot opens a pull request when a newer image is published.
-FROM node:22-alpine AS base
+FROM node:25-alpine AS base
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Install exact versions from package-lock.json. --ignore-scripts blocks
