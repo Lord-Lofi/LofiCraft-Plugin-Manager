@@ -36,7 +36,7 @@ function deny(status: number, error: string) {
   return NextResponse.json({ error }, { status });
 }
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const host = req.headers.get('host') ?? '';
   if (!allowedHosts().has(hostname(host))) {
     return deny(421, 'Host not allowed. Add it to ALLOWED_HOSTS in .env.');
