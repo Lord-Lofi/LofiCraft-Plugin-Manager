@@ -47,3 +47,22 @@ jobs:
             echo "::error::These files must not be committed: $found"
             exit 1
           fi
+
+  # Builds the Docker image (not pushed anywhere), so a broken Dockerfile is
+  # caught in the pull request instead of on the server.
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Build the image
+        run: docker build --pull -t loficraft-panel:ci .
+
+      - name: Check the compose file
+        env:
+          PLUGINS_PATH: /tmp/plugins
+          RCON_PASSWORD: ci-placeholder
+        run: docker compose config --quiet

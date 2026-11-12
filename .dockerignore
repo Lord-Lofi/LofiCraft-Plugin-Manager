@@ -1,0 +1,13 @@
+# Keep local and secret files out of the image build context
+.git
+.github
+node_modules
+.next
+.env
+.env.*
+!.env.example
+docker-compose*.yml
+compose*.yml
+*.md
+!README.md
+swag

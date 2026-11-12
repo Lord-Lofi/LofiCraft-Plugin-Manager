@@ -41,24 +41,21 @@ cd LofiCraft-Plugin-Manager
 cp .env.example .env
 ```
 
-Edit `.env`:
+Edit `.env` (it is gitignored, so your real values never reach GitHub). At minimum set:
 ```env
 # Absolute path to your Minecraft server's plugins folder on the host
 PLUGINS_PATH=/path/to/minecraft/plugins
 
 # Must match server.properties
-RCON_PORT=25575
 RCON_PASSWORD=your_password_here
 
-# Optional: per-plugin reload with PluginMan (default reloads entire server)
-# RCON_RELOAD_COMMAND=plugman reload %plugin%
-
-# UID/GID the container runs as — must match the owner of your plugins folder
-# so config saves work without running as root. Find yours with:
+# UID/GID that own the plugins folder. Find them with:
 #   stat -c '%u %g' /path/to/your/plugins
 PUID=1000
 PGID=1000
 ```
+
+See `.env.example` and the table below for every setting.
 
 **3. Build and start**
 ```bash
@@ -67,7 +64,27 @@ docker compose up --build -d
 
 **4. Open the panel**
 
-Navigate to `http://your-server-ip:3000`
+On the machine running Docker, open `http://localhost:3000`.
+
+The panel has **no login of its own**: anyone who can reach it can edit configs and reload your server. By default it only listens on `127.0.0.1` (this machine). To use it from other devices, put it behind SWAG and Authelia (below). Never forward its port to the internet.
+
+---
+
+## Running behind SWAG + Authelia
+
+1. Find SWAG's Docker network name (`docker network ls`) and add to `.env`:
+   ```env
+   SWAG_NETWORK=your_swag_network
+   ALLOWED_HOSTS=localhost,127.0.0.1,loficraft.example.com
+   ```
+2. Remove the published port and join SWAG's network:
+   ```bash
+   cp docker-compose.swag.example.yml docker-compose.override.yml
+   docker compose up -d
+   ```
+3. Copy `swag/loficraft.subdomain.conf.sample` to SWAG's `nginx/proxy-confs/loficraft.subdomain.conf` and restart SWAG. It requires an Authelia login before anything reaches the panel.
+
+`docker-compose.override.yml` is gitignored, so your network name stays local.
 
 ---
 
@@ -124,13 +141,29 @@ src/
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PLUGINS_PATH` | *(required)* | Host path to your plugins folder |
-| `RCON_HOST` | `host.docker.internal` | Minecraft server hostname from Docker |
+| `PUID` / `PGID` | `1000` | User and group the container runs as. Must own the plugins folder |
+| `RCON_HOST` | `host.docker.internal` | Minecraft server address, as seen from the container |
 | `RCON_PORT` | `25575` | RCON port |
-| `RCON_PASSWORD` | *(required for reload)* | RCON password |
+| `RCON_PASSWORD` | *(required)* | RCON password |
 | `RCON_RELOAD_COMMAND` | `reload confirm` | Command sent on reload (`%plugin%` = plugin name) |
-| `PORT` | `3000` | Web panel port |
-| `PUID` | `1000` | UID the container runs as — match the owner of your plugins folder |
-| `PGID` | `1000` | GID the container runs as — match the group of your plugins folder |
+| `BIND_ADDRESS` | `127.0.0.1` | Address the port listens on. Keep it local unless the network is trusted |
+| `PORT` | `3000` | Port on the host |
+| `ALLOWED_HOSTS` | `localhost,127.0.0.1` | Host names the panel answers to (add your SWAG subdomain) |
+| `CONTAINER_NAME` | `loficraft-panel` | Container name (SWAG uses it to reach the panel) |
+| `SWAG_NETWORK` | *(none)* | SWAG's Docker network, only for the SWAG override file |
+
+---
+
+## Security
+
+- **No built-in login.** Keep the panel on `127.0.0.1` or behind SWAG + Authelia. The host allowlist (`ALLOWED_HOSTS`) blocks DNS-rebinding attacks from other websites.
+- **Least privilege:** the container runs as your `PUID:PGID` (never root), with all Linux capabilities dropped, `no-new-privileges`, and a read-only filesystem except the plugins folder.
+- **Limited file access:** only existing config files (`.yml`, `.yaml`, `.json`, `.toml`, `.conf`, `.properties`, `.txt`) inside a plugin's own folder can be read or saved, up to 2 MB. Symlinks that lead outside the folder are refused, and the panel never creates or deletes files.
+- **Untrusted jars:** plugin names from `plugin.yml` are only used if they contain safe characters, and oversized `plugin.yml` files are ignored.
+- **Browser protections:** save and reload require a same-site request with a custom header (CSRF protection), and every page sends a strict Content-Security-Policy and other security headers. Monaco Editor is bundled, not loaded from a CDN.
+- **Supply chain:** dependencies install from `package-lock.json` with `npm ci --ignore-scripts`. Dependabot, CodeQL and CI check every pull request.
+
+Report vulnerabilities privately; see [SECURITY.md](SECURITY.md).
 
 ---
 
