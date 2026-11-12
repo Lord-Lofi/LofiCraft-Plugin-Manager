@@ -104,14 +104,14 @@ The panel has **no login of its own**: anyone who can reach it can edit configs 
 
 | Layer | Tech |
 |-------|------|
-| Framework | Next.js 15 (App Router) |
+| Framework | Next.js 16 (App Router) |
 | Language | TypeScript |
 | Styling | Tailwind CSS v4 |
 | Animations | Framer Motion |
 | Editor | Monaco Editor |
 | Jar parsing | adm-zip + js-yaml |
 | RCON | rcon-client |
-| Runtime | Docker / Node 22 Alpine |
+| Runtime | Docker / Node 26 Alpine |
 
 ---
 

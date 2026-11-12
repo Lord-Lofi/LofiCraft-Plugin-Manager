@@ -1,5 +1,5 @@
-# Node.js 22 LTS. Dependabot opens a pull request when a newer image is published.
-FROM node:22-alpine AS base
+# Node.js 26 LTS ("Lithium", supported to April 2029). Dependabot opens a pull request when a newer image is published.
+FROM node:26-alpine AS base
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Install exact versions from package-lock.json. --ignore-scripts blocks

@@ -5,6 +5,10 @@ import * as yaml from 'js-yaml';
 
 const PLUGINS_DIR = process.env.PLUGINS_DIR || '/plugins';
 
+// The plugins folder is only known at runtime. The turbopackIgnore markers
+// below stop the build from tracing these paths, which would otherwise copy
+// the whole project (including any local .env) into the server bundle.
+
 // Only these file types are listed, read and saved. Anything else in a
 // plugin's folder (scripts, jars, databases) can't be touched from the panel.
 const CONFIG_EXTENSIONS = new Set(['.yml', '.yaml', '.json', '.toml', '.conf', '.properties', '.txt']);
@@ -80,11 +84,12 @@ function resolveAuthors(info: Record<string, unknown>): string[] {
 // inside the plugins folder (not a symlink pointing somewhere else).
 function configDirFor(name: string): string | undefined {
   if (!SAFE_PLUGIN_NAME.test(name) || name === '.' || name === '..') return undefined;
-  const dir = path.join(PLUGINS_DIR, name);
+  const dir = path.join(/*turbopackIgnore: true*/ PLUGINS_DIR, name);
   try {
     const stat = fs.lstatSync(dir);
     if (!stat.isDirectory()) return undefined;
-    if (path.dirname(fs.realpathSync(dir)) !== fs.realpathSync(PLUGINS_DIR)) return undefined;
+    const realRoot = fs.realpathSync(/*turbopackIgnore: true*/ PLUGINS_DIR);
+    if (path.dirname(fs.realpathSync(/*turbopackIgnore: true*/ dir)) !== realRoot) return undefined;
     return dir;
   } catch {
     return undefined;
@@ -98,7 +103,7 @@ export function getPluginsDir(): string {
 export function getAllPlugins(): PluginInfo[] {
   let files: string[];
   try {
-    files = fs.readdirSync(PLUGINS_DIR);
+    files = fs.readdirSync(/*turbopackIgnore: true*/ PLUGINS_DIR);
   } catch {
     return [];
   }
@@ -106,7 +111,7 @@ export function getAllPlugins(): PluginInfo[] {
   return files
     .filter((f) => f.endsWith('.jar'))
     .map((file) => {
-      const jarPath = path.join(PLUGINS_DIR, file);
+      const jarPath = path.join(/*turbopackIgnore: true*/ PLUGINS_DIR, file);
       const id = file.slice(0, -4);
       const info = extractPluginYml(jarPath);
       const declaredName = asString(info?.name);
