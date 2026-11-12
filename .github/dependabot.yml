@@ -1,0 +1,69 @@
+# Weekly pull requests to keep dependencies current.
+#
+# Groups keep the number of pull requests down:
+#   - security: all security fixes for an ecosystem in one pull request
+#   - next / react / tailwind: packages that must be upgraded together, in
+#     one pull request, including major versions
+#   - minor-and-patch: routine minor and patch updates in one pull request
+# Other major updates get their own pull request.
+# A package goes into the first group it matches, so the order matters.
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      # Next.js and its own packages share one version number.
+      next:
+        applies-to: version-updates
+        patterns:
+          - "next"
+          - "@next/*"
+          - "eslint-config-next"
+      # react, react-dom and their type definitions must match, and the
+      # Monaco wrapper declares which React versions it supports.
+      react:
+        applies-to: version-updates
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+          - "@monaco-editor/react"
+      # tailwindcss and @tailwindcss/* must be exactly the same version.
+      tailwind:
+        applies-to: version-updates
+        patterns:
+          - "tailwindcss"
+          - "@tailwindcss/*"
+      minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
+
+  # Base image in the Dockerfile
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      security:
+        applies-to: security-updates
+        patterns:
+          - "*"
+      minor-and-patch:
+        applies-to: version-updates
+        update-types:
+          - "minor"
+          - "patch"
