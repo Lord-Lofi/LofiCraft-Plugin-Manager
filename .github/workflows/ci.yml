@@ -1,0 +1,49 @@
+# Checks LofiCraft Plugin Manager on every pull request and every push to main.
+# The job name "check" is the required status check in the "main – review" ruleset.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      NEXT_TELEMETRY_DISABLED: 1
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js (same major version as the Dockerfile)
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      # Exact versions from package-lock.json, and no install scripts
+      # (blocks postinstall supply-chain attacks).
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      # next build also type-checks the TypeScript code.
+      - name: Build
+        run: npm run build
+
+      # This repo is public: local deployment files hold real paths and the
+      # RCON password, so they must never be committed.
+      - name: Check no local deployment files are committed
+        run: |
+          found=$(git ls-files '.env' '*.env' '.env.*' 'docker-compose.override.yml' \
+            'compose.override.yml' '*.pem' '*.key' | grep -v '^\.env\.example$' || true)
+          if [ -n "$found" ]; then
+            echo "::error::These files must not be committed: $found"
+            exit 1
+          fi

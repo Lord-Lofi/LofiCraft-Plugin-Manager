@@ -18,3 +18,10 @@ next-env.d.ts
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Local deployment files: real paths and the RCON password stay on your machine
+.env.*
+!.env.example
+docker-compose.override.yml
+compose.override.yml
+*.key
