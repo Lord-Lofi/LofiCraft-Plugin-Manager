@@ -1,12 +1,11 @@
-// Bundles Monaco Editor with the app instead of loading it from a CDN.
+// Sets up Monaco Editor, bundled with the app instead of loaded from a CDN.
 //
-// By default @monaco-editor/react downloads Monaco from cdn.jsdelivr.net in
-// the browser. Bundling the npm copy means no third-party code runs in the
-// panel, the editor works offline, and Monaco's own dependencies (such as
-// DOMPurify) are covered by package-lock.json, npm audit and Dependabot.
+// Monaco comes straight from the monaco-editor npm package; there is no
+// wrapper library in between. No third-party code runs in the panel, the
+// editor works offline, and Monaco's own dependencies (such as DOMPurify)
+// are covered by package-lock.json, npm audit and Dependabot.
 //
-// Only loaded in the browser, by ConfigEditor's dynamic import.
-import { loader } from '@monaco-editor/react';
+// Only loaded in the browser, through CodeEditor's dynamic import.
 import * as monaco from 'monaco-editor/editor';
 import 'monaco-editor/features/register.all';
 // Languages used for plugin configs (see detectLanguage in ConfigEditor)
@@ -31,4 +30,4 @@ self.MonacoEnvironment = {
   },
 };
 
-loader.config({ monaco });
+export { monaco };

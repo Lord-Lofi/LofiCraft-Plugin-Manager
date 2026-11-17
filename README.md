@@ -126,10 +126,12 @@ src/
 ├── components/
 │   ├── PluginCard.tsx        # Animated plugin card
 │   ├── PluginGrid.tsx        # Searchable grid with loading states
-│   ├── ConfigEditor.tsx      # Monaco editor with save/reload
+│   ├── ConfigEditor.tsx      # Config editor with save/reload
+│   ├── CodeEditor.tsx        # Small wrapper that creates the Monaco editor
 │   ├── ConfigFileTree.tsx    # Nested file tree sidebar
 │   └── Navbar.tsx
 └── lib/
+    ├── monaco-setup.ts       # Bundled Monaco: languages and workers
     ├── plugin-reader.ts      # Jar inspection + config file I/O
     └── rcon.ts               # RCON client wrapper
 ```
@@ -160,7 +162,7 @@ src/
 - **Least privilege:** the container runs as your `PUID:PGID` (never root), with all Linux capabilities dropped, `no-new-privileges`, and a read-only filesystem except the plugins folder.
 - **Limited file access:** only existing config files (`.yml`, `.yaml`, `.json`, `.toml`, `.conf`, `.properties`, `.txt`) inside a plugin's own folder can be read or saved, up to 2 MB. Symlinks that lead outside the folder are refused, and the panel never creates or deletes files.
 - **Untrusted jars:** plugin names from `plugin.yml` are only used if they contain safe characters, and oversized `plugin.yml` files are ignored.
-- **Browser protections:** save and reload require a same-site request with a custom header (CSRF protection), and every page sends a strict Content-Security-Policy and other security headers. Monaco Editor is bundled, not loaded from a CDN.
+- **Browser protections:** save and reload require a same-site request with a custom header (CSRF protection), and every page sends a strict Content-Security-Policy and other security headers. Monaco Editor is bundled, not loaded from a CDN, and used directly without a wrapper package.
 - **Supply chain:** dependencies install from `package-lock.json` with `npm ci --ignore-scripts`. Dependabot, CodeQL and CI check every pull request.
 
 Report vulnerabilities privately; see [SECURITY.md](SECURITY.md).
