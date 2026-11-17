@@ -32,7 +32,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   output: 'standalone',
-  serverExternalPackages: ['adm-zip', 'rcon-client'],
+  serverExternalPackages: ['adm-zip'],
   reactStrictMode: false,
   poweredByHeader: false,
   async headers() {

@@ -37,6 +37,11 @@ jobs:
       - name: Build
         run: npm run build
 
+      # Unit tests (Node's built-in test runner), e.g. the RCON client
+      # against a fake server
+      - name: Run tests
+        run: npm test
+
       # This repo is public: local deployment files hold real paths and the
       # RCON password, so they must never be committed.
       - name: Check no local deployment files are committed

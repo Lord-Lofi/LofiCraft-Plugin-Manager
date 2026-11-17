@@ -110,7 +110,7 @@ The panel has **no login of its own**: anyone who can reach it can edit configs 
 | Animations | Framer Motion |
 | Editor | Monaco Editor |
 | Jar parsing | adm-zip + js-yaml |
-| RCON | rcon-client |
+| RCON | Built-in client (`src/lib/rcon-protocol.ts`, Node's `net` module, no package) |
 | Runtime | Docker / Node 26 Alpine |
 
 ---
@@ -133,7 +133,8 @@ src/
 └── lib/
     ├── monaco-setup.ts       # Bundled Monaco: languages and workers
     ├── plugin-reader.ts      # Jar inspection + config file I/O
-    └── rcon.ts               # RCON client wrapper
+    ├── rcon.ts               # Sends the reload command
+    └── rcon-protocol.ts      # Minimal RCON client (no dependencies)
 ```
 
 ---
