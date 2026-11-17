@@ -15,6 +15,11 @@ const CONFIG_EXTENSIONS = new Set(['.yml', '.yaml', '.json', '.toml', '.conf', '
 
 // plugin.yml files are a few KB. Refuse to unpack anything much bigger, so a
 // crafted jar in the plugins folder can't exhaust memory (zip bomb).
+//
+// The size checked first (entry.header.size) is what the jar claims, so a
+// crafted jar could lie. That's still safe: adm-zip 0.6+ stops unpacking at
+// the claimed size (maxOutputLength) and throws, so a lying jar is refused
+// without unpacking the rest. Keep adm-zip at 0.6 or newer.
 const MAX_PLUGIN_YML_BYTES = 1024 * 1024;
 
 // Largest config file the panel will save.

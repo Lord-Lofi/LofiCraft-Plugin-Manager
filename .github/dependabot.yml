@@ -25,8 +25,7 @@ updates:
           - "next"
           - "@next/*"
           - "eslint-config-next"
-      # react, react-dom and their type definitions must match, and the
-      # Monaco wrapper declares which React versions it supports.
+      # react, react-dom and their type definitions must match.
       react:
         applies-to: version-updates
         patterns:
@@ -34,7 +33,6 @@ updates:
           - "react-dom"
           - "@types/react"
           - "@types/react-dom"
-          - "@monaco-editor/react"
       # tailwindcss and @tailwindcss/* must be exactly the same version.
       tailwind:
         applies-to: version-updates

@@ -6,9 +6,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Save, RefreshCw, Loader2, CheckCircle, AlertCircle, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 
-// Load the bundled Monaco setup first, then the React wrapper (browser only).
-const MonacoEditor = dynamic(
-  () => import('@/lib/monaco-setup').then(() => import('@monaco-editor/react')),
+// Monaco is large and browser-only, so it loads when the editor first opens.
+const CodeEditor = dynamic(
+  () => import('@/components/CodeEditor'),
   {
   ssr: false,
   loading: () => (
@@ -168,25 +168,11 @@ export default function ConfigEditor({ pluginName, filename, onDirtyChange }: Pr
             <span className="text-sm">Loading…</span>
           </div>
         ) : (
-          <MonacoEditor
-            height="100%"
+          <CodeEditor
+            key={`${pluginName}/${filename}`}
             language={detectLanguage(filename)}
             value={content}
-            onChange={(v) => setContent(v ?? '')}
-            theme="vs-dark"
-            options={{
-              fontSize: 13,
-              fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace",
-              fontLigatures: true,
-              minimap: { enabled: false },
-              scrollBeyondLastLine: false,
-              lineNumbers: 'on',
-              renderLineHighlight: 'line',
-              tabSize: 2,
-              wordWrap: 'on',
-              padding: { top: 16, bottom: 16 },
-              scrollbar: { verticalScrollbarSize: 6, horizontalScrollbarSize: 6 },
-            }}
+            onChange={setContent}
           />
         )}
       </div>
